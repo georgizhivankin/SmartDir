@@ -1,6 +1,7 @@
 <?php
 use Smartdir\Exceptions\ValidationException;
 use Smartdir\Services\Validation\UserRegistrationValidator;
+use Smartdir\Services\Mail\Mail as Mail;
 
 class UserController extends \BaseController
 {
@@ -13,10 +14,17 @@ class UserController extends \BaseController
      * @var Smartdir\Services\Validation\UserRegistrationValidator
      */
     protected $_validator;
-
-    public function __construct(UserRegistrationValidator $validator)
+    
+    /**
+     *
+     * @var Smartdir\Services\Mail
+     */
+    protected $mail;
+    
+    public function __construct(UserRegistrationValidator $validator, Mail $mail)
     {
         $this->_validator = $validator;
+        $this->mail = $mail;
     }
 
     /**
@@ -57,7 +65,9 @@ class UserController extends \BaseController
         $user->email = Input::get('email');
         $user->username = Input::get('username');
         $user->password = Hash::make(Input::get('password'));
-        // Get whether the 'is_admin' variable is passed and if it is not, set it manualy to 0 I.E. not admin, as otherwise, the SQL constraints would be invalidated and the app would crash with an sqlstate exception
+        // Get home directory for the user (if it's set)
+        (Input::get('home_directory')) ? ($user->home_directory = Input::get('home_directory')):($user->home_directory = null);
+        // Get whether the 'is_admin' variable is passed and if it is not, set it manually to 0 I.E. not admin, as otherwise, the SQL constraints would be invalidated and the app would crash with an sqlstate exception
         (Input::get('is_admin')) ? ($user->is_admin = Input::get('is_admin')) : ($user->is_admin = 0);
         
         // Validate details using our custom Validator service class
@@ -68,6 +78,14 @@ class UserController extends \BaseController
             $validate_data = $this->_validator->validate($input);
             // Save user to DB after successful validation
             $user->save();
+            
+                        // Send a confirmation email to the user
+                        $from = Config::get('appInfo.email');
+                        $to = $user->email;
+                        $message = 'test';
+                        $view = 'emails.auth.registrationConfirmation';
+                        $data = array('username' => $user->username);
+            $this->mail->sendMail($from, $to, $cc = null, $message, $attachments = null, $view, $data);
             
             return Redirect::to('users/register')->withMessage('The user was registered successfully');
         } catch (ValidationException $e) {

@@ -22,7 +22,6 @@ class CreateInitialSchema extends Migration {
 			$table->increments('id')->unsigned();
 			$table->string('name', 255);
 			$table->string('path', '255');
-			$table->boolean('home_directory');
 			$table->timestamps();
 		});
 		// Schema for users table
@@ -35,6 +34,7 @@ class CreateInitialSchema extends Migration {
 			$table->rememberToken();
 			$table->string('first_name', '255')->nullable();
 			$table->string('last_name', '255')->nullable();
+			$table->string('home_directory')->nullable();
 			$table->boolean('is_admin');
 			$table->timestamps();
 			$table->softDeletes();
