@@ -75,4 +75,34 @@ class Filesystem
             return false;
         }
     }
+
+    /**
+     *
+     * @param string $file            
+     * @return string
+     */
+    public function getFileType($file)
+    {
+        // Determine if the supplied path is to a valid file
+        if (\File::isFile($file)) {
+            // Return the type of the given file
+            return \File::type($file);
+        } else {
+            // The path is not a link to a valid file, so return false
+            return false;
+        }
+    }
+
+    public function getFileSize($file)
+    {
+        // Determine if the supplied path is to a valid file
+        if (\File::isFile($file)) {
+            // Return the size of the given file
+            return \File::size($file);
+        } else {
+            // The path is not a link to a valid file, so return false
+            return false;
+        }
+    }
+    
 }

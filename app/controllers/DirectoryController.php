@@ -17,7 +17,7 @@ class DirectoryController extends \BaseController
     
     /**
      *
-     * @var Filesystem
+     * @var Smartdir\Services\Filesystem\Filesystem
      */
     protected $filesystem;
 
@@ -39,10 +39,26 @@ class DirectoryController extends \BaseController
      */
     public function index()
     {
+        // Check if an ID is passed through the URL and if not, display the list of files and directories from the base directory defined within config/directory.php, else, display the passed directory
+            if (!isset($_GET['id'])) {
+        // Get baseDirectory
+        $baseDirectory = Config::get('directory.baseDirectory');
+            } else {
+                $baseDirectory = $_GET['id'];
+            }
         // Get all files in a directory and all subdirectories and prepare the contents for displaying it in a view
-        $allFiles = $this->filesystem->listAllFiles('C:/xampp/htdocs/smartdir');
-        $allSubdirectories = $this->filesystem->listSubdirectories('C:/xampp/htdocs/smartdir');
-        // Prepare and display the list view by passing the $files data to the view
+        $allFilesRaw = $this->filesystem->listAllFiles($baseDirectory);
+        $allSubdirectoriesRaw = $this->filesystem->listSubdirectories($baseDirectory);
+        // Prepare the data by adding the short name, size and type to both arrays in order to display them in the view
+        // Go through all files first
+        foreach ($allFilesRaw as $file) {
+            $allFiles[] = array("name" => basename($file), "path" => $file, "type" => $this->filesystem->getFileType($file), "size" => $this->filesystem->getFileSize($file));
+        }
+        // Go through all subdirectories and do the same as for the files
+        foreach ($allSubdirectoriesRaw as $directory) {
+            $allSubdirectories[] = array("name" => basename($directory), "path" => $directory, "type" => $this->filesystem->getFileType($directory), "size" => $this->filesystem->getFileSize($directory));
+        }
+               // Prepare and display the list view by passing the $files data to the view
         $this->layout->content = View::make('pages.directories.list')->with(array('allFiles' => $allFiles, 'allSubdirectories' => $allSubdirectories));
     }
 
@@ -113,6 +129,8 @@ class DirectoryController extends \BaseController
      */
     public function show($id)
     {
+        // Check if the ID is a valid file
+        
         //
     }
 

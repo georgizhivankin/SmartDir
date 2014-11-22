@@ -51,9 +51,14 @@ Route::post('directories/add', array('before' => 'csrf', 'uses' => 'DirectoryCon
 'as' => 'DirectoryController.store'));
 
 /**
- * Show file list
+ * Show directory and file list
  */
 Route::get('directories/list', array('uses' => 'DirectoryController@index', 'as' => 'DirectoryController.index'));
+
+/**
+ * Show individual file
+ */
+Route::get('directories/show/{id}', array('uses' => 'DirectoryController@show', 'as' => 'DirectoryController.show'));
 
 /**
  * Login controller
