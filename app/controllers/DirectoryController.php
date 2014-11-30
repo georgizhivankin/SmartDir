@@ -8,13 +8,13 @@ class DirectoryController extends \BaseController
     
     // Define the main layout used to display that controller's view
     protected $layout = 'layouts.default';
-    
+
     /**
      *
      * @var Smartdir\Services\Validation\UserRegistrationValidator
      */
     protected $_validator;
-    
+
     /**
      *
      * @var Smartdir\Services\Filesystem\Filesystem
@@ -23,8 +23,8 @@ class DirectoryController extends \BaseController
 
     /**
      *
-     * @param Filesystem $filesystem
-     * @param DirectoryValidator $validator
+     * @param Filesystem $filesystem            
+     * @param DirectoryValidator $validator            
      */
     public function __construct(Filesystem $filesystem, DirectoryValidator $validator)
     {
@@ -40,26 +40,42 @@ class DirectoryController extends \BaseController
     public function index()
     {
         // Check if an ID is passed through the URL and if not, display the list of files and directories from the base directory defined within config/directory.php, else, display the passed directory
-            if (!isset($_GET['id'])) {
-        // Get baseDirectory
-        $baseDirectory = Config::get('directory.baseDirectory');
-            } else {
-                $baseDirectory = $_GET['id'];
-            }
+        if (! isset($_GET['id'])) {
+            // Get baseDirectory
+            $baseDirectory = Config::get('directory.baseDirectory');
+        } else {
+            $baseDirectory = $_GET['id'];
+        }
         // Get all files in a directory and all subdirectories and prepare the contents for displaying it in a view
         $allFilesRaw = $this->filesystem->listAllFiles($baseDirectory);
         $allSubdirectoriesRaw = $this->filesystem->listSubdirectories($baseDirectory);
+        // Initialize the empty arrays that would hold the directories and files data
+        $allFiles = array();
+        $allSubdirectories = array();
         // Prepare the data by adding the short name, size and type to both arrays in order to display them in the view
         // Go through all files first
         foreach ($allFilesRaw as $file) {
-            $allFiles[] = array("name" => basename($file), "path" => $file, "type" => $this->filesystem->getFileType($file), "size" => $this->filesystem->getFileSize($file));
+            $allFiles[] = array(
+                "name" => basename($file),
+                "path" => $file,
+                "type" => $this->filesystem->getFileType($file),
+                "size" => $this->filesystem->getFileSize($file)
+            );
         }
         // Go through all subdirectories and do the same as for the files
         foreach ($allSubdirectoriesRaw as $directory) {
-            $allSubdirectories[] = array("name" => basename($directory), "path" => $directory, "type" => $this->filesystem->getFileType($directory), "size" => $this->filesystem->getFileSize($directory));
+            $allSubdirectories[] = array(
+                "name" => basename($directory),
+                "path" => $directory,
+                "type" => $this->filesystem->getFileType($directory),
+                "size" => $this->filesystem->getFileSize($directory)
+            );
         }
-               // Prepare and display the list view by passing the $files data to the view
-        $this->layout->content = View::make('pages.directories.list')->with(array('allFiles' => $allFiles, 'allSubdirectories' => $allSubdirectories));
+        // Prepare and display the list view by passing the $files data to the view
+        $this->layout->content = View::make('pages.directories.list')->with(array(
+            'allFiles' => $allFiles,
+            'allSubdirectories' => $allSubdirectories
+        ));
     }
 
     /**
@@ -82,7 +98,7 @@ class DirectoryController extends \BaseController
         foreach ($users as $user) {
             $users_array[$user->id] = $user->username;
         }
-                $this->layout->content = View::make('pages.directories.add')->with('path', $path)->with('users_array', $users_array);
+        $this->layout->content = View::make('pages.directories.add')->with('path', $path)->with('users_array', $users_array);
     }
 
     /**
@@ -100,8 +116,6 @@ class DirectoryController extends \BaseController
         $directory->path = Input::get('path');
         // Get assigned to user
         $user = Input::get('assigned_to_user');
-        // Get whether the 'home_directory' variable is passed and if it is not, set it manualy to 0 I.E. not a home directory
-        (Input::get('home_directory')) ? ($directory->home_directory = Input::get('home_directory')) : ($directory->home_directory = 0);
         
         // Validate details using our custom Validator service class
         $input = Input::all();
@@ -113,12 +127,11 @@ class DirectoryController extends \BaseController
             $directory->save();
             // Assign user to the saved directory
             $directory->users()->attach($user);
-        
+            
             return Redirect::to('directories/add')->withMessage('The directory was saved successfully');
         } catch (ValidationException $e) {
             return Redirect::to('directories/add')->withInput()->withErrors($e->get_errors());
         }
-        
     }
 
     /**
@@ -127,11 +140,25 @@ class DirectoryController extends \BaseController
      * @param int $id            
      * @return Response
      */
-    public function show($id)
+    public function show($path)
     {
-        // Check if the ID is a valid file
-        
-        //
+        // decode the file path
+        $path = urldecode($path);
+        // Check if the $path points to a valid file
+        if ($this->filesystem->isFile($path)) {
+            // Prepare the files' headers and send the file to the browser
+            // Get the file size
+            $fileSize = $this->filesystem->getFileSize($path);
+            // Open the file for reading
+            $fp = $this->filesystem->openFile($path, 'rb');
+            // send the right headers
+            header("Content-Type: application/octet-stream");
+            header("Content-Length: $fileSize");
+            // Dump the file and stop the script
+            fpassthru($fp);
+            // Terminate the script's execution
+            exit;
+        }
     }
 
     /**

@@ -58,7 +58,7 @@ Route::get('directories/list', array('uses' => 'DirectoryController@index', 'as'
 /**
  * Show individual file
  */
-Route::get('directories/show/{id}', array('uses' => 'DirectoryController@show', 'as' => 'DirectoryController.show'));
+Route::get('directories/show/{path}', array('uses' => 'DirectoryController@show', 'as' => 'DirectoryController.show'));
 
 /**
  * Login controller
