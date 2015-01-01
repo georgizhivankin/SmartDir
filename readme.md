@@ -1,25 +1,37 @@
-## Laravel PHP Framework
+# About SmartDir
 
-[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/downloads.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
+**Please note that this app is not in active development as of 31 December 2014 due to other more pressing projects.**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, and caching.
+The SmartDir application is designed for individuals or small organisations who wish to provide restricted access to content on a specific server through a standard HTTP connection to their clients, without requiring complex FTP setup or configuration on the client's end.
 
-Laravel aims to make the development process a pleasing one for the developer without sacrificing application functionality. Happy developers make the best code. To this end, we've attempted to combine the very best of what we have seen in other web frameworks, including frameworks implemented in other languages, such as Ruby on Rails, ASP.NET MVC, and Sinatra.
+Essentially, the SmartDir application provides an easy-to-use interface similar to the default indexing behaviour of the Apache HTTP server, but with the additional ability to restrict the user in the amount of content they can access through a basic username and password authentication system.
 
-Laravel is accessible, yet powerful, providing powerful tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
+* * *
 
-## Official Documentation
+# Requirements
 
-Documentation for the entire framework can be found on the [Laravel website](http://laravel.com/docs).
+The SmartDir application requires the following to run correctly:
+- An [Apache](http://httpd.apache.org/) or [Nginx](http://nginx.org/) HTTP server,
+- [PHP](http://php.net/) V 5.3 or greater
+- [MySQL](http://www.mysql.com/) V 5.10 or greater
+- [Composer](https://getcomposer.org/) dependency manager for PHP
 
-### Contributing To Laravel
+* * *
 
-**All issues and pull requests should be filed on the [laravel/framework](http://github.com/laravel/framework) repository.**
+# Installation
 
-### License
+The application is still in active development, so at the moment, you may wish to first pull the whole repository into your development environment, review and amend the config files at `app/config/` as necessary and then run the following command within the route directory of the application, assuming that Composer is properly setup on your machine
+```
+composer update
+```
+This would download all dependencies needed for the application to function correctly.
+After this, you may run the following command to create the initial MySQL schema:
+```
+php artisan migrate:install
+```
+If you have configured everything correctly, you should be able to see the home page of the app by going to http://localhost/route_directory_of_smartdir_app/public/
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+# Questions, Comments or Suggestions
+
+If you wish to contact me with questions, suggestions or comments about the app, don't hesitate to drop me a line by completing the contact form on my website [here](http://www.zhivankin.com/contact).
+I usually try to answer to any received emails on a daily basis.
